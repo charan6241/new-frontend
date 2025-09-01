@@ -18,7 +18,7 @@ function ImageUploader() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/analyze", // <- THIS is what I need to check!
+        "https://new-idsi.onrender.com", // <- THIS is what I need to check!
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -46,3 +46,4 @@ function ImageUploader() {
 }
 
 export default ImageUploader;
+
