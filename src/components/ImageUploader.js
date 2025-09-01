@@ -1,49 +1,48 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./FileUpload.css";
+import React, { useState } from 'react';
 
 function ImageUploader() {
   const [file, setFile] = useState(null);
-  const [result, setResult] = useState(null);
+  const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
-    setFile(e.target.files[0]);
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      setMessage('Please select a file first.');
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('image', file);
 
     try {
-      const res = await axios.post(
-        "https://new-idsi.onrender.com", // <- THIS is what I need to check!
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setResult(res.data);
-    } catch (err) {
-      console.error("Upload error:", err);
+      const response = await fetch('https://new-idsi.onrender.com/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMessage(`Upload successful: ${JSON.stringify(result)}`);
+      } else {
+        setMessage('Upload failed.');
+      }
+    } catch (error) {
+      setMessage('Error uploading file.');
+      console.error(error);
     }
   };
 
   return (
-    <div className="upload-container">
-      <input type="file" onChange={handleChange} />
-      <button className="analyze-button" onClick={handleUpload}>
-        Upload
-      </button>
-
-      {result && (
-        <div className="results-card">
-          <h3>Results</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-        </div>
-      )}
+    <div>
+      <h2>Upload an Image</h2>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <button onClick={handleUpload}>Upload</button>
+      {message && <p>{message}</p>}
     </div>
   );
 }
 
 export default ImageUploader;
-
