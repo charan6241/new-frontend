@@ -1,7 +1,8 @@
 // frontend/src/App.js
 
 import React from 'react';
-import ImageUploader from './components/ImageUploader';
+// Reverted back to using the ImageUploader component
+import ImageUploader from './components/ImageUploader'; 
 import './App.css';
 
 function App() {
@@ -11,10 +12,6 @@ function App() {
         <h1>Welcome to the Bovine Analysis Tool</h1>
       </header>
       <main>
+        {/* Using the ImageUploader component as requested */}
         <ImageUploader />
-      </main>
-    </div>
-  );
-}
 
-export default App;
