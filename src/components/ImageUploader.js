@@ -1,89 +1,125 @@
-// frontend/src/components/ImageUploader.js
+/* frontend/src/components/FileUpload.css */
 
-import React, { useState } from 'react';
-import axios from 'axios';
+.upload-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
 
-const ImageUploader = () => {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewImage, setPreviewImage] = useState(null);
-    const [predictionData, setPredictionData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+}
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-            setPreviewImage(URL.createObjectURL(file));
-            setPredictionData(null);
-            setError(null);
-        }
-    };
+.tab {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
 
-    const handleUpload = async () => {
-        if (!selectedFile) {
-            setError("Please select an image first.");
-            return;
-        }
+.tab.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+}
 
-        setIsLoading(true);
-        setError(null);
-        setPredictionData(null);
+.file-input-area {
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  background-color: #f8f9fa;
+}
 
-        const formData = new FormData();
-        formData.append("file", selectedFile);
+.file-input-area p {
+  margin: 0;
+  color: #555;
+}
 
-        try {
-            const response = await axios.post("http://127.0.0.1:8000/predict-image", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            setPredictionData(response.data);
-        } catch (err) {
-            console.error("Error uploading file:", err);
-            setError("An error occurred during analysis. Please check the backend server and try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+.file-input {
+  width: 100%;
+  padding: 1rem;
+}
 
-    return (
-        <div style={{ maxWidth: '800px', margin: '20px auto', fontFamily: 'Arial, sans-serif', textAlign: 'center' }}>
-            <h2>Bovine Image Analysis</h2>
-            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'block', margin: '20px auto' }} />
+.analyze-button {
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-            <button onClick={handleUpload} disabled={isLoading} style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
-                {isLoading ? 'Analyzing...' : 'Analyze Image'}
-            </button>
+.analyze-button:hover {
+  background-color: #0056b3;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
 
-            {error && <p style={{ color: 'red', marginTop: '20px' }}>{error}</p>}
+.analyze-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 
-            <div style={{ marginTop: '30px', display: 'flex', gap: '20px', alignItems: 'flex-start', justifyContent: 'center' }}>
-                {previewImage && (
-                    <div style={{ flex: 1, maxWidth: '350px' }}>
-                        <h3>Image Preview</h3>
-                        <img src={previewImage} alt="Selected Preview" style={{ maxWidth: '100%', borderRadius: '8px' }} />
-                    </div>
-                )}
+.error-message {
+  color: #dc3545;
+  margin-top: 1rem;
+  font-weight: 500;
+}
 
-                {isLoading && <p>Loading results...</p>}
-                {predictionData && (
-                    <div style={{ flex: 1, maxWidth: '350px', textAlign: 'left', background: '#f9f9f9', padding: '20px', borderRadius: '8px' }}>
-                        <h3>Analysis Results</h3>
-                        <p><strong>Animal Type:</strong> {predictionData.prediction.animal_type}</p>
-                        <p><strong>Predicted Breed:</strong> {predictionData.prediction.breed}</p>
-                        <p><strong>Visual Health Status:</strong> {predictionData.prediction.health_status}</p>
-                        <hr />
-                        <h4>Breed Information</h4>
-                        <p><strong>Milk Yield:</strong> {predictionData.breed_info.milk_yield}</p>
-                        <p><strong>Weight Range:</strong> {predictionData.breed_info.weight_range}</p>
-                        <p><i>{predictionData.breed_info.info}</i></p>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
+.results-section {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+}
 
-export default ImageUploader;
+.media-preview, .results-card {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.results-card {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 5px solid #007bff;
+}
+
+.results-card h3, .results-card h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.results-card hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1rem 0;
+}
+
+.results-card p {
+  margin: 0.5rem 0;
+  color: #444;
+}
+
+.preview-image {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
