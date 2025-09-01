@@ -24,7 +24,7 @@ function ImageUploader() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://new-idsi.onrender.com/analyze", // your backend endpoint
+        "https://new-idsi.onrender.com/predict-image", // ✅ correct backend endpoint
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -40,7 +40,7 @@ function ImageUploader() {
   return (
     <div>
       <h2>Upload an Image</h2>
-      <input type="file" onChange={handleFileChange} />
+      <input type="file" accept="image/*" onChange={handleFileChange} />
       <button onClick={handleUpload} disabled={loading}>
         {loading ? "Uploading..." : "Upload"}
       </button>
