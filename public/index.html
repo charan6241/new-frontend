@@ -1,44 +1,55 @@
-import React, { useState } from "react";
-
-function UploadFile() {
-  const [file, setFile] = useState(null);
-
-  const handleChange = (e) => {
-    const selected = e.target.files[0];
-    if (selected) {
-      setFile(selected);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image & Video Upload Preview</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
     }
-  };
+    .preview {
+      margin-top: 20px;
+    }
+    img, video {
+      max-width: 400px;
+      margin-top: 10px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Upload Image or Video</h2>
+  <input type="file" id="fileInput" accept="image/*,video/*" />
+  
+  <div class="preview" id="preview"></div>
 
-  return (
-    <div>
-      <input
-        type="file"
-        accept="image/*,video/*"
-        onChange={handleChange}
-      />
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
 
-      {file && file.type.startsWith("image/") && (
-        <img
-          src={URL.createObjectURL(file)}
-          alt="preview"
-          width="400"
-          style={{ marginTop: "10px" }}
-        />
-      )}
+    fileInput.addEventListener('change', (event) => {
+      preview.innerHTML = ""; // clear old preview
+      const file = event.target.files[0];
+      if (!file) return;
 
-      {file && file.type.startsWith("video/") && (
-        <video
-          controls
-          width="400"
-          style={{ marginTop: "10px" }}
-        >
-          <source src={URL.createObjectURL(file)} type={file.type} />
-          Your browser does not support the video tag.
-        </video>
-      )}
-    </div>
-  );
-}
+      const fileURL = URL.createObjectURL(file);
 
-export default UploadFile;
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = fileURL;
+        preview.appendChild(img);
+      } else if (file.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.src = fileURL;
+        video.controls = true;
+        preview.appendChild(video);
+      } else {
+        preview.textContent = "Unsupported file type!";
+      }
+    });
+  </script>
+</body>
+</html>
