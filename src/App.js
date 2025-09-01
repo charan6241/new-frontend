@@ -14,4 +14,9 @@ function App() {
       <main>
         {/* Using the ImageUploader component as requested */}
         <ImageUploader />
+      </main>
+    </div>
+  );
+}
 
+export default App;
