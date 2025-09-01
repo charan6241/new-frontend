@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Media Upload & Analysis</title>
+  <title>Upload & Analyse</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f7fa;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
       margin: 0;
+      background: #f3f4f6;
     }
     .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       width: 400px;
       text-align: center;
     }
@@ -28,117 +28,104 @@
     }
     .upload-box {
       margin: 15px 0;
-      padding: 20px;
-      border: 2px dashed #4CAF50;
-      border-radius: 12px;
-      background: #f9fff9;
-    }
-    .upload-box input {
-      display: none;
-    }
-    .upload-box label {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .preview {
-      margin-top: 20px;
-    }
-    .preview img, .preview video {
-      max-width: 100%;
+      padding: 15px;
+      border: 2px dashed #ccc;
       border-radius: 10px;
-      margin-top: 10px;
+      background: #fafafa;
+    }
+    input[type="file"] {
+      display: block;
+      margin: 10px auto;
     }
     button {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #007BFF;
+      padding: 10px 20px;
+      margin-top: 15px;
       border: none;
+      border-radius: 8px;
+      background: #2563eb;
       color: white;
       font-size: 16px;
-      border-radius: 8px;
       cursor: pointer;
     }
     button:hover {
-      background: #0056b3;
+      background: #1d4ed8;
+    }
+    .preview {
+      margin-top: 15px;
+    }
+    .preview img, .preview video {
+      max-width: 100%;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Upload Media for Analysis</h2>
-    
-    <!-- Image Upload -->
+    <h2>Upload & Analyse</h2>
+
     <div class="upload-box">
-      <p><strong>Upload Photo</strong></p>
-      <input type="file" id="photoUpload" accept="image/*">
-      <label for="photoUpload">Choose Photo</label>
-      <div class="preview" id="photoPreview"></div>
+      <label>Upload Image:</label>
+      <input type="file" id="imageInput" accept="image/*" />
+      <div class="preview" id="imagePreview"></div>
     </div>
-    
-    <!-- Video Upload -->
+
     <div class="upload-box">
-      <p><strong>Upload Video</strong></p>
-      <input type="file" id="videoUpload" accept="video/*">
-      <label for="videoUpload">Choose Video</label>
+      <label>Upload Video:</label>
+      <input type="file" id="videoInput" accept="video/*" />
       <div class="preview" id="videoPreview"></div>
     </div>
-    
-    <button onclick="uploadFiles()">Analyze</button>
+
+    <button onclick="analyse()">Analyse</button>
+    <p id="result"></p>
   </div>
 
   <script>
-    const photoInput = document.getElementById('photoUpload');
-    const videoInput = document.getElementById('videoUpload');
-    const photoPreview = document.getElementById('photoPreview');
-    const videoPreview = document.getElementById('videoPreview');
+    let selectedImage = null;
+    let selectedVideo = null;
 
-    // Show preview for photo
-    photoInput.addEventListener('change', () => {
-      const file = photoInput.files[0];
+    // Preview Image
+    document.getElementById("imageInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      selectedImage = file;
       if (file) {
         const reader = new FileReader();
-        reader.onload = e => {
-          photoPreview.innerHTML = `<img src="${e.target.result}" alt="Photo Preview">`;
+        reader.onload = function(e) {
+          document.getElementById("imagePreview").innerHTML =
+            `<img src="${e.target.result}" alt="Preview"/>`;
         };
         reader.readAsDataURL(file);
       }
     });
 
-    // Show preview for video
-    videoInput.addEventListener('change', () => {
-      const file = videoInput.files[0];
+    // Preview Video
+    document.getElementById("videoInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      selectedVideo = file;
       if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          videoPreview.innerHTML = `<video controls><source src="${e.target.result}" type="${file.type}"></video>`;
-        };
-        reader.readAsDataURL(file);
+        const url = URL.createObjectURL(file);
+        document.getElementById("videoPreview").innerHTML =
+          `<video src="${url}" controls></video>`;
       }
     });
 
-    // Upload to backend
-    function uploadFiles() {
+    // Analyse
+    async function analyse() {
       const formData = new FormData();
-      if (photoInput.files[0]) formData.append('photo', photoInput.files[0]);
-      if (videoInput.files[0]) formData.append('video', videoInput.files[0]);
+      if (selectedImage) formData.append("image", selectedImage);
+      if (selectedVideo) formData.append("video", selectedVideo);
 
-      fetch('/upload', { // Your backend endpoint
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert("Analysis Result: " + JSON.stringify(data));
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Upload failed! Check console.");
-      });
+      try {
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("result").innerText = "Result: " + result.message;
+      } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("result").innerText = "Upload failed! Check console.";
+      }
     }
   </script>
 </body>
